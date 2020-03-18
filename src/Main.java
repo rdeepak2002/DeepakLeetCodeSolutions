@@ -30,9 +30,33 @@ public class Main {
         // Problem 4
         System.out.println("\n\n\nProblem 4:");
         System.out.println(main.findMedianSortedArrays(new int[]{1,2}, new int[]{3,4}));
+
+        // Problem 5
+        System.out.println("\n\n\nProblem 5:");
+        System.out.println(main.longestPalindrome("baad"));
+
+        // Problem 6
+        System.out.println("\n\n\nProblem 6:");
+        System.out.println(main.convert("PAYPALISHIRING", 4));
+
+        // Problem 7
+        System.out.println("\n\n\nProblem 7:");
+        System.out.println(main.reverse(-1234));
+
+        // Problem 8
+        System.out.println("\n\n\nProblem 8:");
+        System.out.println(main.myAtoi("3.14159"));
+
+        // Problem 9
+        System.out.println("\n\n\nProblem 9:");
+        System.out.println(main.isPalindrome(121));
+
+        // Problem 10
+        System.out.println("\n\n\nProblem 10:");
+        System.out.println(main.isMatch("aa", "a*"));
     }
 
-    // Problem 1
+    // Problem 1 (Easy)
     /*
      * Given an array of integers, return indices of the two numbers such that they add up to a specific target.
      * You may assume that each input would have exactly one solution, and you may not use the same element twice.
@@ -70,7 +94,7 @@ public class Main {
         */
     }
 
-    // Problem 2
+    // Problem 2 (Medium)
     /*
      * You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse
      * order and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
@@ -165,7 +189,7 @@ public class Main {
         */
     }
 
-    // Problem 3
+    // Problem 3 (Medium)
     /*
      * Given a string, find the length of the longest substring without repeating characters.
      */
@@ -228,7 +252,7 @@ public class Main {
     }
     */
 
-    // Problem 4
+    // Problem 4 (Hard)
     /* There are two sorted arrays nums1 and nums2 of size m and n respectively.
      * Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
      * You may assume nums1 and nums2 cannot be both empty.
@@ -258,8 +282,8 @@ public class Main {
 
             if (maxLeftX <= minRightY && maxLeftY <= minRightX) {
                 //We have partitioned array at correct place
-                // Now get max of left elements and min of right elements to get the median in case of even length combined array size
-                // or get max of left for odd length combined array size.
+                // Now get max of left elements and min of right elements to get the median in case of even
+                // length combined array size or get max of left for odd length combined array size.
                 if ((x + y) % 2 == 0) {
                     return ((double)Math.max(maxLeftX, maxLeftY) + Math.min(minRightX, minRightY))/2;
                 } else {
@@ -274,5 +298,201 @@ public class Main {
 
         //Only we we can come here is if input arrays were not sorted. Throw in that scenario.
         throw new IllegalArgumentException();
+    }
+
+    // Problem 5 (Medium)
+    /* Given a string s, find the longest palindromic substring in s. You may assume that the maximum length of s is 1000.
+     */
+    // Good solution:
+    public String longestPalindrome(String s) {
+        int start = 0;
+        int end = 0;
+
+        if(s.length() < 1) {
+            return "";
+        }
+
+        for (int i = 0; i < s.length(); i++) {
+            int len1 = maxPalindrome(s, i, i);
+            int len2 = maxPalindrome(s, i, i + 1);
+            int len = Math.max(len1, len2);
+            if (len > end - start) {
+                start = i - (len - 1) / 2;
+                end = i + len / 2;
+            }
+        }
+
+        return s.substring(start, end+1);
+    }
+
+    public int maxPalindrome(String s, int L, int R) {
+        while (L >= 0 && R < s.length() && s.charAt(L) == s.charAt(R)) {
+            L--;
+            R++;
+        }
+        return R - L - 1;
+    }
+
+    // Problem 6 (Medium)
+    /* The string "PAYPALISHIRING" is written in a zigzag pattern on a given number of rows like this: (you may want to display this pattern in a fixed font for better legibility)
+     * P   A   H   N
+     * A P L S I I G
+     * Y   I   R
+     * And then read line by line: "PAHNAPLSIIGYIR"
+     * Write the code that will take a string and make this conversion given a number of rows:
+     * string convert(string s, int numRows);
+     */
+    // My solution:
+    public String convert(String s, int numRows) {
+        if(numRows == 1)
+            return s;
+
+        String result = "";
+
+        String[] rows = new String[numRows];
+
+        boolean goingDown = false;
+        int curRow = 0;
+
+        for(int i = 0; i < s.length(); i++) {
+            if(rows[curRow] == null) {
+                rows[curRow] = "";
+            }
+            rows[curRow] += s.charAt(i);
+            if(curRow == 0 || curRow == numRows - 1) {
+                goingDown = !goingDown;
+            }
+            if(goingDown) {
+                curRow++;
+            }
+            else {
+                curRow--;
+            }
+        }
+
+        for (String row : rows) {
+            if(row != null)
+                result += row;
+        }
+
+        return result;
+    }
+
+    // Problem 7 (Easy)
+    /* Given a 32-bit signed integer, reverse digits of an integer.
+     */
+    // My attempt:
+    /*
+    public int reverse(int x) {
+        String result = "";
+        String num = Integer.toString(Math.abs(x));
+
+        for(int i = num.length()-1; i >= 0; i--) {
+            result+=num.charAt(i);
+        }
+
+        if(x < 0) {
+            return -1*Integer.parseInt(result);
+        }
+
+        return Integer.parseInt(result);
+    }
+     */
+    // My later optimal solution:
+    public int reverse(int x) {
+        long rev = 0;
+
+        while(x!=0) {
+            rev = rev*10 + x%10;
+
+            x /= 10;
+        }
+
+        if(rev > Integer.MAX_VALUE || rev < Integer.MIN_VALUE) {
+            return 0;
+        }
+
+        return (int)rev;
+    }
+
+    // Problem 8 (Medium)
+    /* Implement atoi which converts a string to an integer.
+     * The function first discards as many whitespace characters as necessary until the first non-whitespace character
+     * is found. Then, starting from this character, takes an optional initial plus or minus sign followed by as many
+     * numerical digits as possible, and interprets them as a numerical value.
+     * The string can contain additional characters after those that form the integral number, which are ignored and
+     * have no effect on the behavior of this function.
+     * If the first sequence of non-whitespace characters in str is not a valid integral number, or if no such sequence
+     * exists because either str is empty or it contains only whitespace characters, no conversion is performed.
+     * If no valid conversion could be performed, a zero value is returned.
+     *
+     * Note:
+     * Only the space character ' ' is considered as whitespace character.
+     * Assume we are dealing with an environment which could only store integers within the 32-bit signed integer range:
+     * [−231,  231 − 1]. If the numerical value is out of the range of representable values, INT_MAX (231 − 1) or
+     * INT_MIN (−231) is returned.
+     */
+    // My solution:
+    public int myAtoi(String str) {
+        char c[] = str.toCharArray();
+        int i = 0;
+        int n = c.length;
+        //Remove whitespace
+        while (i < n && c[i] == ' ') {
+            i++;
+        }
+        //Handle sign
+        int sign = 1;
+        if(i < n && (c[i] == '+' || c[i] == '-')) {
+            sign = c[i] == '+' ? 1: -1;
+            i++;
+        }
+
+        //Get the number
+        long num = 0;
+        int d;
+        while(i<n) {
+            d = c[i] - '0';
+            if(d < 0 || d > 9)
+                break;
+            num = num * 10 + d;
+            if(num*sign < Integer.MIN_VALUE)
+                return Integer.MIN_VALUE;
+            if(num*sign > Integer.MAX_VALUE)
+                return Integer.MAX_VALUE;
+            i++;
+
+        }
+        return (int)num*sign;
+    }
+
+    // Problem 9 (Easy)
+    /* Determine whether an integer is a palindrome. An integer is a palindrome when it reads the same backward as forward.
+     */
+    // My solution:
+    public boolean isPalindrome(int x) {
+        int orig = x;
+        int rev = 0;
+
+        while(x != 0) {
+            rev = rev*10+x%10;
+            x /= 10;
+        }
+
+        return rev == Math.abs(orig);
+    }
+
+    // Problem 10 (Hard)
+    /* Given an input string (s) and a pattern (p), implement regular expression matching with support for '.' and '*'.
+     * '.' Matches any single character.
+     * '*' Matches zero or more of the preceding element.
+     * The matching should cover the entire input string (not partial).
+     * Note:
+     * s could be empty and contains only lowercase letters a-z.
+     * p could be empty and contains only lowercase letters a-z, and characters like . or *.
+     */
+    // My solution:
+    public boolean isMatch(String s, String p) {
+        
     }
 }

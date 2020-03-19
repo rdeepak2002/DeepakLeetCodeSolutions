@@ -499,6 +499,7 @@ public class Main {
 
         T[0][0] = true;
 
+        // Deals with weird patterns like a*b* or a*b*c* wherein anything can pass
         for(int i = 1; i < T[0].length; i++) {
             if(pattern[i-1] == '*') {
                 T[0][i] = T[0][i-2];

@@ -75,6 +75,23 @@ public class Main {
         // Problem 16
         System.out.println("\n\n\nProblem 16:");
         System.out.println(main.threeSumClosest(new int[]{-3,-2,-5,3,-4}, -1));
+
+        // Problem 17
+        System.out.println("\n\n\nProblem 17:");
+        System.out.println(main.letterCombinations("23"));
+
+        // Problem 18
+        System.out.println("\n\n\nProblem 18:");
+        System.out.println(main.fourSum(new int[]{1, 0, -1, 0, -2, 2}, 0));
+
+        // Problem 19
+        System.out.println("\n\n\nProblem 19:");
+        ListNode l19 = new ListNode(1);
+        l19.next = new ListNode(2);
+        //l19.next.next = new ListNode(3);
+        //l19.next.next.next = new ListNode(4);
+        //l19.next.next.next.next = new ListNode(5);
+        System.out.println(main.removeNthFromEnd(l19, 1));
     }
 
     // Problem 1 (Easy)
@@ -787,10 +804,183 @@ public class Main {
                     j++;
                 }
             }
-
         }
 
         return (int)minSum;
     }
+
+    // Problem 17 (Medium)
+    /* Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number
+     * could represent. A mapping of digit to letters (just like on the telephone buttons) is given below. Note that
+     * 1 does not map to any letters.
+     */
+    // Better solution:
+    public List<String> letterCombinations(String digits) {
+        List<String> answer = new ArrayList<>();
+
+        Map<String, String> phone = new HashMap<String, String>() {{
+            put("2", "abc");
+            put("3", "def");
+            put("4", "ghi");
+            put("5", "jkl");
+            put("6", "mno");
+            put("7", "pqrs");
+            put("8", "tuv");
+            put("9", "wxyz");
+        }};
+
+        if(digits.length() != 0) {
+            branchOut(answer, phone, digits, "");
+        }
+
+        return answer;
+    }
+
+    public void branchOut(List<String> answer, Map<String, String> phone, String digits, String combination) {
+        if(digits.length() == 0) {
+            answer.add(combination);
+        }
+        else {
+            String digit = digits.substring(0, 1);
+            String letters = phone.get(digit);
+            digits = digits.substring(1);
+
+            for(int i = 0; i < letters.length(); i++) {
+                branchOut(answer, phone, digits, combination + letters.charAt(i));
+            }
+        }
+    }
+
+    // Problem 18 (Medium)
+    /* Given an array nums of n integers and an integer target, are there elements a, b, c, and d in nums such that
+     * a + b + c + d = target? Find all unique quadruplets in the array which gives the sum of target.
+     * Note:
+     * The solution set must not contain duplicate quadruplets.
+     */
+    // My solution (time limit exceeds):
+    /*
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        List<List<Integer>> ans = new ArrayList<>();
+        ArrayList<Integer> numList = new ArrayList<>();
+        Set<List<Integer>> set = new HashSet<>();
+
+        Arrays.sort(nums);
+
+        for(int num : nums) {
+            numList.add(num);
+        }
+
+        for(int i = 0; i < numList.size(); i++) {
+            for(int j = i+1; j < numList.size() && j!=i; j++) {
+                for(int l = j+1; l < numList.size() && l!=j && l!=i; l++) {
+                    int sum = numList.get(i) + numList.get(j) + numList.get(l);
+                    int k = numList.lastIndexOf(target-sum);
+
+                    if(k > l) {
+                        ArrayList<Integer> tempSol = new ArrayList<>();
+                        tempSol.add(numList.get(i));
+                        tempSol.add(numList.get(j));
+                        tempSol.add(numList.get(l));
+                        tempSol.add(numList.get(k));
+
+                        if(!set.contains(tempSol)) {
+                            ans.add(tempSol);
+                            set.add(tempSol);
+                        }
+                    }
+                }
+            }
+        }
+
+        return ans;
+    }
+    */
+    // Better solution:
+    public List<List<Integer>> fourSum(int[] nums, int target)
+    {
+        List<List<Integer>> result = new ArrayList<>();
+        find(0, target, new ArrayList<>(), nums, result);
+        return result;
+    }
+
+    private void find(int fromIndx, int balance, List<Integer> currentNums, int[] nums, List<List<Integer>> result)
+    {
+        for(int i=fromIndx; i<nums.length; i++)
+        {
+            if(currentNums.size() == 3)
+            {
+                // Just need the last one, so find remaining balance from the rest of numbers
+                if(nums[i] == balance) {
+                    List<Integer> newCurrentNums = new ArrayList<>(currentNums);
+                    newCurrentNums.add(nums[i]);
+                    Collections.sort(newCurrentNums);
+                    if(!result.contains(newCurrentNums))
+                        result.add(newCurrentNums);
+                    return;
+                }
+            }
+            else {
+                List<Integer> newCurrentNums = new ArrayList<>(currentNums);
+                newCurrentNums.add(nums[i]);
+                find(i+1, balance-nums[i], newCurrentNums, nums, result);
+            }
+        }
+    }
+
+    // Problem 19 (Medium)
+    /* Given a linked list, remove the n-th node from the end of list and return its head.
+     */
+    // My solution:
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        if(head.next == null) {
+            return null;
+        }
+        else if(n<=0) {
+            return head;
+        }
+        else {
+            ListNode cur = head.next;
+
+            ListNode start = head;
+            ListNode end = cur.next;
+
+            while(isNthLast(cur, n) == 0) {
+                start = start.next;
+                cur = cur.next;
+                end = end.next;
+            }
+
+            if(isNthLast(cur, n) == 2) {
+                return head.next;
+            }
+
+            //System.out.println(cur);
+
+            start.next = end;
+        }
+
+        return head;
+    }
+
+    public int isNthLast(ListNode cur, int n) {
+        for(int i = 0; i < n; i++) {
+            if(cur.next == null && i!=n-1) {
+                return 2;
+            }
+            cur = cur.next;
+        }
+        return (cur==null) ? 1 : 0;
+    }
+
+    // Problem 20 (Easy)
+    /* Given a string containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is
+     * valid.
+     * An input string is valid if:
+     * Open brackets must be closed by the same type of brackets.
+     * Open brackets must be closed in the correct order.
+     * Note that an empty string is also considered valid.
+     */
+    // My solution:
+    
 }
 

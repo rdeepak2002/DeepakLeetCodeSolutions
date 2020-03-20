@@ -88,10 +88,14 @@ public class Main {
         System.out.println("\n\n\nProblem 19:");
         ListNode l19 = new ListNode(1);
         l19.next = new ListNode(2);
-        //l19.next.next = new ListNode(3);
-        //l19.next.next.next = new ListNode(4);
-        //l19.next.next.next.next = new ListNode(5);
-        System.out.println(main.removeNthFromEnd(l19, 1));
+        l19.next.next = new ListNode(3);
+        l19.next.next.next = new ListNode(4);
+        l19.next.next.next.next = new ListNode(5);
+        System.out.println(main.removeNthFromEnd(l19, 2));
+
+        // Problem 20
+        System.out.println("\n\n\nProblem 20:");
+        System.out.println(main.isValid("([)]"));
     }
 
     // Problem 1 (Easy)
@@ -981,6 +985,35 @@ public class Main {
      * Note that an empty string is also considered valid.
      */
     // My solution:
-    
+    public boolean isValid(String s) {
+        Stack<Character> stack = new Stack<>();
+
+        for(char c : s.toCharArray()) {
+            if(c == '(' || c == '[' || c == '{') {
+                stack.push(c);
+            }
+            else {
+                if(stack.isEmpty()) {
+                    return false;
+                }
+                else {
+                    if((c == ')' && stack.peek() == '(') || (c == ']' && stack.peek() == '[') || (c == '}'
+                            && stack.peek() == '{')) {
+                        stack.pop();
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if(stack.isEmpty()) {
+            return true;
+        }
+        else  {
+            return false;
+        }
+    }
 }
 

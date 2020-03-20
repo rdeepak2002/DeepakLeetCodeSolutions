@@ -1,7 +1,4 @@
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
     // Runner
@@ -54,6 +51,30 @@ public class Main {
         // Problem 10
         System.out.println("\n\n\nProblem 10:");
         System.out.println(main.isMatch("aa", "a*"));
+
+        // Problem 11
+        System.out.println("\n\n\nProblem 11:");
+        System.out.println(main.maxArea(new int[]{1,8,6,2,5,4,8,3,7}));
+
+        // Problem 12
+        System.out.println("\n\n\nProblem 12:");
+        System.out.println(main.intToRoman(1994));
+
+        // Problem 13
+        System.out.println("\n\n\nProblem 13:");
+        System.out.println(main.romanToInt("MCMXCIV"));
+
+        // Problem 14
+        System.out.println("\n\n\nProblem 14:");
+        System.out.println(main.longestCommonPrefix(new String[]{"flower","flow","flight"}));
+
+        // Problem 15
+        System.out.println("\n\n\nProblem 15:");
+        System.out.println(main.threeSum(new int[]{-4,-2,1,-5,-4,-4,4,-2,0,4,0,-2,3,1,-5,0}));
+
+        // Problem 16
+        System.out.println("\n\n\nProblem 16:");
+        System.out.println(main.threeSumClosest(new int[]{-3,-2,-5,3,-4}, -1));
     }
 
     // Problem 1 (Easy)
@@ -499,7 +520,7 @@ public class Main {
 
         T[0][0] = true;
 
-        // Deals with weird patterns like a*b* or a*b*c* wherein anything can pass
+        // Deals with weird patterns like a*b* or a*b*c* wherein anything can pass∂
         for(int i = 1; i < T[0].length; i++) {
             if(pattern[i-1] == '*') {
                 T[0][i] = T[0][i-2];
@@ -525,4 +546,251 @@ public class Main {
 
         return T[text.length][pattern.length];
     }
+
+    // Problem 11 (Medium)
+    /* Given n non-negative integers a1, a2, ..., an , where each represents a point at coordinate (i, ai). n vertical
+     * lines are drawn such that the two endpoints of line i is at (i, ai) and (i, 0). Find two lines, which together
+     * with x-axis forms a container, such that the container contains the most water.
+     * Note: You may not slant the container and n is at least 2.
+     */
+    /*
+    // My solution:
+    public int maxArea(int[] height) {
+        if (height.length == 2) {
+            return Math.min(height[0], height[1]);
+        }
+
+        int maxArea = 0;
+
+        for(int i = 0; i < height.length; i++) {
+            for(int j = 0; j < height.length; j++) {
+                int tempHeight = Math.min(height[i], height[j]);
+                int width = j-i;
+                maxArea = Math.max(maxArea, tempHeight*width);
+            }
+        }
+
+        return maxArea;
+    }
+    */
+    // Best solution:
+    public int maxArea(int[] height) {
+        if (height.length == 2) {
+            return Math.min(height[0], height[1]);
+        }
+
+        int maxArea = 0;
+
+        int l = 0;
+        int r = height.length-1;
+
+        while(l!=r) {
+            int area = Math.min(height[l],height[r])*(r-l);
+            maxArea = Math.max(area, maxArea);
+            if(height[l] < height[r]) {
+                l++;
+            }
+            else {
+                r--;
+            }
+        }
+
+        return maxArea;
+    }
+
+    // Problem 12 (Medium)
+    /* Given an integer, convert it to a roman numeral. Input is guaranteed to be within the range from 1 to 3999.
+     */
+    // My solution:
+    public String intToRoman(int num) {
+        int[] values = {1000,900,500,400,100,90,50,40,10,9,5,4,1};
+        String[] romanLiterals = {"M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"};
+        String roman = "";
+
+        for(int i = 0; i < values.length; i++) {
+            while(num >= values[i]) {
+                roman += romanLiterals[i];
+                num -= values[i];
+            }
+        }
+
+        return roman;
+    }
+
+    // Problem 13 (Easy)
+    /* Given a roman numeral, convert it to an integer. Input is guaranteed to be within the range from 1 to 3999.
+     */
+    // My solution:
+    public int romanToInt(String s) {
+        int[] values = {900,1000,400,500,90,100,40,50,9,10,4,5,1};
+        String[] romanLiterals = {"CM", "M","CD","D","XC","C","XL","L","IX","X","IV","V","I"};
+
+        int result = 0;
+
+        while (s.length() > 0) {
+            boolean found = false;
+            int i = 0;
+            while(!found) {
+                if(s.indexOf(romanLiterals[i]) == 0) {
+                    s = s.substring(romanLiterals[i].length());
+                    result += values[i];
+                    found = true;
+                }
+                i++;
+            }
+        }
+
+        return result;
+    }
+
+    // Problem 14 (Easy)
+    /* Write a function to find the longest common prefix string amongst an array of strings.
+     * If there is no common prefix, return an empty string "".
+     */
+    // My solution:
+    public String longestCommonPrefix(String[] strs) {
+        if (strs.length == 0) return "";
+        String prefix = strs[0];
+        for (int i = 1; i < strs.length; i++) {
+            while (strs[i].indexOf(prefix) != 0) {
+                prefix = prefix.substring(0, prefix.length() - 1);
+                if (prefix.isEmpty()) return "";
+            }
+        }
+        return prefix;
+    }
+
+    // Problem 15 (Medium)
+    /* Given an array nums of n integers, are there elements a, b, c in nums such that a + b + c = 0? Find all unique
+     * triplets in the array which gives the sum of zero.
+     * Note:
+     * The solution set must not contain duplicate triplets.
+     */
+    // My solution (but time limit exceeded):
+    /*
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> ans = new ArrayList<>();
+        ArrayList<Integer> numList = new ArrayList<>();
+        Set<List<Integer>> set = new HashSet<>();
+
+        Arrays.sort(nums);
+
+        for(int num : nums) {
+            numList.add(num);
+        }
+
+        for(int i = 0; i < numList.size(); i++) {
+            for(int j = i+1; j < numList.size() && j!=i; j++) {
+                int sum = numList.get(i) + numList.get(j);
+                int k = numList.lastIndexOf(0-sum);
+
+                if(k > j && numList.get(k)+sum == 0) {
+                    ArrayList<Integer> tempSol = new ArrayList<>();
+                    tempSol.add(numList.get(i));
+                    tempSol.add(numList.get(j));
+                    tempSol.add(numList.get(k));
+
+                    if(!set.contains(tempSol)) {
+                        ans.add(tempSol);
+                        set.add(tempSol);
+                    }
+                }
+            }
+        }
+
+        return ans;
+    }
+    */
+    // Better solution:
+    public List<List<Integer>> threeSum(int[] nums) {
+
+        /*
+        Approach: Sort the array. Have a set of list of integers (threeSumSet), to store three sum cobos.
+                  Go through each item (i). For each item, have two pointers: one pointing to the next item (j), and another
+                  one pointing to the end of the array (k). Now, do a 2-way-sweep. While j and k doesn't meet, at each step
+                  calculate sum = (nums[i]+nums[j]+nums[k]).
+                  [Starting sweep from next item to prevent duplicate combos because of indexes like ( [i,j,k], [j,i,k]).]
+                  If sum == 0, we found a three-sum combo! Add it to the threeSumSet. If there is any
+                  duplicate combo because of different indexes but same items like
+                  ([i1, j1, k1], [i2, j2, k2], but i1==i2, j1==j2, k1==k2). This will automatically be taken care of by the
+                  set, as it analyzes the added Lists and makes sure there is no duplicate.
+                  If sum > 0, we should try decreasing the sum value. So we'll decrement k, as this should potentially
+                  result nums[k] being smaller than previous value, as the array is sorted.
+                  If sum < 0, because of the same reason, we'll increment j.
+                  Finally, we'll convert the threeSumSet to ArrayList and return.
+
+        Complexity analysis: Time: O(n^2), Space: O(n)
+        */
+
+        Set<List<Integer>> threeSumSet  = new HashSet<>();
+
+        Arrays.sort(nums);
+
+        for(int i=0; i<nums.length-2;i++){                         //Doing length-2, because we want two elems j and k after i.
+            int j =i+1;
+
+            int k = nums.length-1;
+
+            while(j<k){
+
+                int sum = nums[i]+nums[j]+nums[k];
+
+                if(sum==0){
+                    threeSumSet.add(Arrays.asList(nums[i], nums[j], nums[k]));
+
+                    j++;
+                    k--;
+                }
+                else if (sum > 0){
+                    k--;
+                }
+                else if (sum < 0){
+                    j++;
+                }
+            }
+
+        }
+
+        return new ArrayList<>(threeSumSet);
+    }
+
+    // Problem 16 (Medium)
+    /* Given an array nums of n integers and an integer target, find three integers in nums such that the sum is closest
+     * to target. Return the sum of the three integers. You may assume that each input would have exactly one solution.
+     */
+    // My solution:
+    public int threeSumClosest(int[] nums, int target) {
+        Arrays.sort(nums);
+        long minSum = Integer.MAX_VALUE;
+
+        for(int i=0; i<nums.length-2;i++){                         //Doing length-2, because we want two elems j and k after i.
+            int j =i+1;
+
+            int k = nums.length-1;
+
+            while(j<k){
+                int sum = nums[i]+nums[j]+nums[k];
+
+                if(Math.abs(target-sum) < Math.abs(target-minSum)) {
+                    minSum = sum;
+                }
+
+                if(sum==target){
+                    j++;
+                    k--;
+                    return sum;
+                }
+                else if (sum > target){
+                    k--;
+                }
+                else if (sum < target){
+                    j++;
+                }
+            }
+
+        }
+
+        return (int)minSum;
+    }
 }
+

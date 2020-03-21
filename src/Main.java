@@ -96,6 +96,51 @@ public class Main {
         // Problem 20
         System.out.println("\n\n\nProblem 20:");
         System.out.println(main.isValid("([)]"));
+
+        // Problem 21
+        System.out.println("\n\n\nProblem 21:");
+        ListNode ml1 = new ListNode(1);
+        ml1.next = new ListNode(2);
+        ml1.next.next = new ListNode(4);
+        ListNode ml2 = new ListNode(1);
+        ml2.next = new ListNode(3);
+        ml2.next.next = new ListNode(4);
+        System.out.println(main.mergeTwoLists(ml1, ml2));
+
+        // Problem 22
+        System.out.println("\n\n\nProblem 22:");
+        System.out.println(main.generateParenthesis(3));
+
+        // Problem 23
+        System.out.println("\n\n\nProblem 23:");
+        ListNode[] lists = new ListNode[3];
+        lists[0] = new ListNode(1);
+        lists[0].next = new ListNode(4);
+        lists[0].next.next = new ListNode(5);
+        lists[1] = new ListNode(1);
+        lists[1].next = new ListNode(3);
+        lists[1].next.next = new ListNode(4);
+        lists[2] = new ListNode(2);
+        lists[2].next = new ListNode(6);
+        System.out.println(main.mergeKLists(lists));
+
+        // Problem 24
+        System.out.println("\n\n\nProblem 24:");
+        ListNode pn = new ListNode(1);
+        pn.next = new ListNode(2);
+        pn.next.next = new ListNode(3);
+        pn.next.next.next = new ListNode(4);
+        pn.next.next.next.next = new ListNode(5);
+        System.out.println(main.swapPairs(pn));
+        
+        // Problem 25
+        System.out.println("\n\n\nProblem 25:");
+        ListNode pn = new ListNode(1);
+        pn.next = new ListNode(2);
+        pn.next.next = new ListNode(3);
+        pn.next.next.next = new ListNode(4);
+        pn.next.next.next.next = new ListNode(5);
+        System.out.println(main.swapPairs(pn));
     }
 
     // Problem 1 (Easy)
@@ -1014,6 +1059,299 @@ public class Main {
         else  {
             return false;
         }
+    }
+
+    // Problem 21 (Easy)
+    /* Merge two sorted linked lists and return it as a new list. The new list should be made by splicing together the
+     * nodes of the first two lists.
+     */
+    // My solution:
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        if(l1 == null){
+            return l2;
+        } else if(l2 == null){
+            return l1;
+        }
+
+        ListNode head = null;
+
+        if(l1.val <= l2.val) {
+            head = l1;
+            l1 = l1.next; // move forward
+        } else {
+            head = l2;
+            l2 = l2.next; // move forward
+        }
+
+        ListNode cur = head;
+
+        // merging
+        while(l1 != null && l2 != null) {
+            if(l1.val <= l2.val){
+                cur.next = l1;
+                l1 = l1.next;
+            } else {
+                cur.next = l2;
+                l2 = l2.next;
+            }
+            cur = cur.next;
+        }
+
+        // add remain nodes
+        if(l1 == null){
+            cur.next = l2;
+        } else if(l2 == null){
+            cur.next = l1;
+        }
+
+        return head;
+    }
+
+    // Problem 22 (Medium)
+    /* Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+     */
+    // My solution:
+    public List<String> generateParenthesis(int n) {
+        List<String> output = new ArrayList<>();
+        findCombos(output, "", 0, 0, n);
+        return output;
+    }
+
+    public void findCombos(List<String> output, String cur, int open, int closed, int max) {
+        if(cur.length() == 2*max) {
+            output.add(cur);
+            return;
+        }
+
+        if(open < max) {
+            findCombos(output, cur+"(", open+1, closed, max);
+        }
+
+        if(closed < open) {
+            findCombos(output, cur+")", open, closed+1, max);
+        }
+    }
+
+    // Problem 23 (Hard)
+    /* Merge k sorted linked lists and return it as one sorted list. Analyze and describe its complexity.
+     */
+    // My solution:
+    /*
+    public ListNode mergeKLists(ListNode[] lists) {
+        if(lists.length <= 0) {
+            return null;
+        }
+
+        ListNode head = lists[0];
+
+        for(int i = 1; i < lists.length; i++) {
+            head = mergeTwoLists(head, lists[i]);
+        }
+
+        return head;
+    }
+    */
+
+    // Better solution:
+    public class MinHeap<T> {
+
+        private ArrayList<T> list;
+
+        public MinHeap() {
+
+            this.list = new ArrayList<T>();
+        }
+
+        public MinHeap(ArrayList<T> items) {
+            this.list = items;
+            buildHeap();
+        }
+
+        public void insert(T item) {
+
+            list.add(item);
+            int i = list.size() - 1;
+            int parent = parent(i);
+
+            while (parent != i && ((ListNode)list.get(i)).val < ((ListNode)list.get(parent)).val) {
+
+                swap(i, parent);
+                i = parent;
+                parent = parent(i);
+            }
+        }
+
+        public void buildHeap() {
+
+            for (int i = list.size() / 2; i >= 0; i--) {
+                minHeapify(i);
+            }
+        }
+
+        public T extractMin() {
+
+            if (list.size() == 0) {
+                throw new IllegalStateException("MinHeap is EMPTY");
+            } else if (list.size() == 1) {
+                T min = list.remove(0);
+                return min;
+            }
+
+            // remove the last item ,and set it as new root
+            T min = list.get(0);
+            T lastItem = list.remove(list.size() - 1);
+            list.set(0, lastItem);
+
+            // bubble-down until heap property is maintained
+            minHeapify(0);
+
+            // return min key
+            return min;
+        }
+
+        private void minHeapify(int i) {
+
+            int left = left(i);
+            int right = right(i);
+            int smallest = -1;
+
+            // find the smallest key between current node and its children.
+            if (left <= list.size() - 1 && ((ListNode)list.get(left)).val < ((ListNode)list.get(i)).val) {
+                smallest = left;
+            } else {
+                smallest = i;
+            }
+
+            if (right <= list.size() - 1 && ((ListNode)list.get(right)).val < ((ListNode)list.get(smallest)).val) {
+                smallest = right;
+            }
+
+            // if the smallest key is not the current key then bubble-down it.
+            if (smallest != i) {
+
+                swap(i, smallest);
+                minHeapify(smallest);
+            }
+        }
+
+        public T getMin() {
+            return list.get(0);
+        }
+
+        public boolean isEmpty() {
+
+            return list.size() == 0;
+        }
+
+        private int right(int i) {
+
+            return 2 * i + 2;
+        }
+
+        private int left(int i) {
+
+            return 2 * i + 1;
+        }
+
+        private int parent(int i) {
+
+            if (i % 2 == 1) {
+                return i / 2;
+            }
+
+            return (i - 1) / 2;
+        }
+
+        private void swap(int i, int parent) {
+            T temp = list.get(parent);
+            list.set(parent, list.get(i));
+            list.set(i, temp);
+        }
+
+    }
+
+    public ListNode mergeKLists(ListNode[] lists) {
+        ListNode head = new ListNode(0);
+        ListNode cur = head;
+
+        MinHeap<ListNode> heap = new MinHeap<>();
+
+        for(int i = 0; i < lists.length; i++) {
+            if(lists[i] != null)
+                heap.insert(lists[i]);
+        }
+
+        System.out.println(heap.list);
+
+        while(heap.list.size() != 0) {
+            ListNode ln = heap.extractMin();
+            cur.next = new ListNode(ln.val);
+            cur = cur.next;
+            //System.out.println(ln.val);
+            if(ln.next != null)
+                heap.insert(ln.next);
+        }
+
+        return head.next;
+    }
+
+    // Problem 24 (Medium)
+    /* Given a linked list, swap every two adjacent nodes and return its head.
+     * You may not modify the values in the list's nodes, only nodes itself may be changed.
+     */
+    // My solution:
+    public ListNode swapPairs(ListNode head) {
+        ListNode prev = null;
+        ListNode cur = head;
+
+        System.out.println(head);
+
+        boolean stop = false;
+
+        if(head == null || head.next == null) {
+            return head;
+        }
+
+        while(!stop) {
+            if(prev == null) {
+                ListNode thirdNode = cur.next.next;
+                ListNode node1 = cur;
+                ListNode node2 = cur.next;
+                node1.next = thirdNode;
+                node2.next = node1;
+                head = node2;
+                prev = node1;
+
+                if(prev.next == null || prev.next.next == null) {
+                    return head;
+                }
+            }
+            else {
+                ListNode thirdNode = prev.next.next.next;
+                ListNode node1 = prev.next;
+                ListNode node2 = prev.next.next;
+                prev.next = node2;
+                node2.next = node1;
+                node1.next = thirdNode;
+                prev = node1;
+
+                if(thirdNode == null || prev.next.next == null) {
+                    stop = true;
+                }
+            }
+        }
+
+        return head;
+    }
+
+    // Problem 25 (Hard)
+    /* Given a linked list, reverse the nodes of a linked list k at a time and return its modified list.
+     * k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not
+     * a multiple of k then left-out nodes in the end should remain as it is.
+     */
+    // My solution:
+    public ListNode reverseKGroup(ListNode head, int k) {
+
     }
 }
 
